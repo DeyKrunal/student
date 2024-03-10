@@ -1,7 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:bargraph/modal/view_progress.dart';
+import 'package:bargraph/task.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,16 +27,25 @@ class _MyHomePageState extends State<MyHomePage> {
   late group g;
   late Faculty f;
   late progress p;
-  late Map<String,dynamic> ud ;
-  var fid;
-  var gid;
+  // late Map<String,dynamic> ud ;
+  var fid,gid;
+  var amt = 0;
+  List<double> groupProgressData = [];
 
   @override
   void initState() {
-    loadData();
     super.initState();
     print("Hello");
+    loadData();
     _readData();
+    print(fetchData3());
+  }
+  double _progressValue = 600;
+
+  void _updateProgress(double value) {
+    setState(() {
+      _progressValue = value;
+    });
   }
 
   Future<void> _readData() async {
@@ -79,7 +93,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // print(res.body);
     return jsonDecode(res.body);
   }
-  List<double> groupProgressData = [];
 
   void loadData() async {
     var x = await fetchData3();
@@ -87,6 +100,8 @@ class _MyHomePageState extends State<MyHomePage> {
     //final json = x as Map<dynamic, dynamic>;
     //var a = progress.fromJson(json);
     print(x["proid"]);
+    amt = x["count"];
+    print("Total = ${amt}");
     for (var i = 1; i <= 9; i++) {
       print( x["p"+i.toString()]);
       groupProgressData.add(int.parse(x["p"+i.toString()]) as double);
@@ -98,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var res = await http.post(Uri.parse(uri),body: {
       "grp_id":"${gid}"
     });
-    // print(res.body);
+    print(res.body);
     return jsonDecode(res.body);
   }
 
@@ -135,24 +150,51 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             SizedBox(height: 20),
             Card(
-              shadowColor: Colors.yellow,
-              color: Colors.white,
-              elevation: 4.0,
+              elevation: 5,
               child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Group Progress',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                padding: const EdgeInsets.all(10.0),
+                child: Center(
+                  child: Container(
+                    height: 300,
+                    width: 300,
+                    child: SfRadialGauge(
+                      axes: <RadialAxis>[
+                        RadialAxis(
+                          startAngle: 150,
+                          endAngle: 30,
+                          minimum: 0,
+                          maximum: 900,
+                          interval: 100,
+                          radiusFactor: 0.99,
+                          labelOffset: 20,
+                          majorTickStyle: MajorTickStyle(length: 0.15, thickness: 2),
+                          minorTickStyle: MinorTickStyle(length: 0.07, thickness: 1),
+                          axisLineStyle: AxisLineStyle(thickness: 3),
+                          ranges: <GaugeRange>[
+                            GaugeRange(startValue: 0, endValue: _progressValue)
+                          ],
+                          pointers: <GaugePointer>[
+                            NeedlePointer(knobStyle: KnobStyle(knobRadius: 0.07,sizeUnit: GaugeSizeUnit.factor,borderWidth: 0.65,borderColor: Colors.lightBlue),value: _progressValue,enableAnimation: true,animationType: AnimationType.easeInCirc,onValueChanged: _updateProgress,),
+                            RangePointer(value: _progressValue,enableAnimation: true,animationType: AnimationType.easeInCirc,color: Colors.lightBlue,onValueChanged: _updateProgress,)
+                            ,MarkerPointer(markerWidth: 15,value: _progressValue,enableAnimation: true,animationType: AnimationType.easeInCirc,color: Colors.black,onValueChanged: _updateProgress,),
+                          ],
+                          annotations: <GaugeAnnotation>[
+                            GaugeAnnotation(
+                                widget: Text('Group Progress', style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold, color: Colors.black)),
+                                angle: 90,
+                                positionFactor: 0.8
+                            ),
+                            GaugeAnnotation(
+                                widget: Text('600', style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.black)),
+                                angle: 90,
+                                positionFactor: 0.0
+                            )
+                          ],
+
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 10),
-                    Container(
-                      height: 250, // Increased height
-                      child: BarChartWidget(groupProgressData),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -236,8 +278,6 @@ class _MyHomePageState extends State<MyHomePage> {
               time: 'APR',
               title: 'End Of Bachelor\'s',
               description: '',
-
-
             ),
           ],
 

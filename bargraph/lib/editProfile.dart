@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:html';
 import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UpdateDataForm extends StatefulWidget {
   @override
@@ -12,34 +16,50 @@ class _UpdateDataFormState extends State<UpdateDataForm> {
   final TextEditingController _textField1Controller = TextEditingController();
   final TextEditingController _textField2Controller = TextEditingController();
   String _imageFile = "";
+  var fid,gid;
+  late String base64Image;
+  late String fileName;
 
-  void _updateData() {
+  get html => null;
+
+  @override
+  void initState() {
+    super.initState();
+    print("Hello");
+    _readData();
+  }
+
+  Future<void> uploadImage(imageFile) async {
+    base64Image = base64Encode(imageFile.readAsBytesSync());
+    fileName = imageFile.path.split('/').last;
+  }
+
+  void chooseImage() async {
+    XFile? imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (imageFile != null) {
+      uploadImage(imageFile.path);
+    }
+  }
+
+  Future<void> _updateData() async {
     String text1 = _textField1Controller.text;
     String text2 = _textField2Controller.text;
-
     print("G Name = ${text1}");
     print("P Name = ${text2}");
-    print("Image = ${_imageFile}");
+    print("Gid = ${gid}");
+    final response = await http.post(
+        Uri.parse(
+            'https://project-pilot.000webhostapp.com/API/update_profile.php'),
+        body: {
+          "gname": text1,
+          "pname": text2,
+          "gid": gid,
+        });
+    print(response.body);
+    var jsonData = jsonDecode(response.body);
 
-    // Add your logic here to update the data using text1 and text2
-    // For example, you can make an API call to update the data in your backend
-
-    // Clear the text fields after updating
     _textField1Controller.clear();
     _textField2Controller.clear();
-  }
-  Future<void> _getImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path).path;
-        print("Hello1");
-        print("Hello = ${_imageFile}");
-      });
-    } else {
-      print('No image selected');
-    }
   }
 
   @override
@@ -79,7 +99,7 @@ class _UpdateDataFormState extends State<UpdateDataForm> {
                     child: IconButton(
                       icon: Icon(Icons.edit),
                       onPressed: () {
-                        _getImage();
+                        chooseImage();
                         // Add your edit functionality here
                       },
                     ),),
@@ -126,5 +146,34 @@ class _UpdateDataFormState extends State<UpdateDataForm> {
         ),
       ),
     );
+  }
+
+  Future<void> _readData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? value1 = prefs.getString('gid');
+    if (value1 != null) {
+      setState(() {
+        gid = value1; // Update the user variable with the retrieved value
+      });
+      print("gid = ${value1}");
+    } else {
+      setState(() {
+        gid = "guest"; // Set user to "guest" if no value is found
+      });
+      print('No value found for the key');
+    }
+
+    String? value2 = prefs.getString('fid');
+    if (value2 != null) {
+      setState(() {
+        fid = value2; // Update the user variable with the retrieved value
+      });
+      print("fid = ${value2}");
+    } else {
+      setState(() {
+        fid = "guest"; // Set user to "guest" if no value is found
+      });
+      print('No value found for the key');
+    }
   }
 }

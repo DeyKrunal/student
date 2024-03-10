@@ -31,6 +31,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPage extends State<LoginPage> {
+  bool _passwordVisible = true;
   // final call_api api = call_api();
 
   late RiveAnimationController _btnAnimationController;
@@ -137,9 +138,7 @@ class _LoginPage extends State<LoginPage> {
                                 child: TextFormField(
                                   controller: _nameController,
                                   keyboardType: TextInputType.text,
-
                                   decoration: InputDecoration(
-
                                     prefixIcon: const Icon(Icons.group,color: Colors.black,),
                                     border: OutlineInputBorder(
                                         borderSide: const BorderSide(
@@ -164,10 +163,8 @@ class _LoginPage extends State<LoginPage> {
                                 child: TextFormField(
                                   controller: _passwordController,
                                   keyboardType: TextInputType.text,
-
-                                  obscureText:true,
+                                  obscureText:_passwordVisible,
                                   decoration: InputDecoration(
-
                                     prefixIcon: const Icon(Icons.lock,color: Colors.black),
                                     border: OutlineInputBorder(
                                         borderSide: const BorderSide(
@@ -178,6 +175,14 @@ class _LoginPage extends State<LoginPage> {
                                     ),
                                     labelText: "Password",
                                     hintText: "Enter Password",
+                                    suffixIcon: IconButton(
+                                      icon: Icon(_passwordVisible ? Icons.visibility_off : Icons.visibility,color: Colors.white,),
+                                      onPressed: () {
+                                        setState(() {
+                                          _passwordVisible = !_passwordVisible;
+                                        });
+                                      },
+                                    ),
                                   ),
                                   validator: (msg){
                                     if(msg!.isEmpty){

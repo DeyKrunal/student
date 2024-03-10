@@ -556,3 +556,71 @@ class FacultyDetailsCard extends StatelessWidget {
     );
   }
 }
+
+class GaugePainter extends CustomPainter {
+  final double value;
+  final double size;
+
+  GaugePainter({required this.value, required this.size});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double centerX = size.width / 2;
+    final double centerY = size.height / 2;
+    final double radius = (size.width - 10) / 2;
+
+    // Draw the gauge background
+    Paint backgroundPaint = Paint()
+      ..color = Colors.grey[200]!
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 10;
+    canvas.drawCircle(Offset(centerX, centerY), radius, backgroundPaint);
+
+    // Draw the gauge arc
+    Paint arcPaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 10;
+    final double startAngle = -pi / 2;
+    final double sweepAngle = 2 * pi * (value / 150);
+    canvas.drawArc(Rect.fromCircle(center: Offset(centerX, centerY), radius: radius), startAngle, sweepAngle, false, arcPaint);
+
+    // Draw the gauge ticks and labels
+    TextStyle tickTextStyle = TextStyle(color: Colors.black, fontSize: 14);
+    TextSpan tickTextSpan = TextSpan(style: tickTextStyle, text: value.toInt().toString());
+    TextPainter tickTextPainter = TextPainter(text: tickTextSpan);
+    tickTextPainter.layout();
+
+    final double tickLength = 10;
+    final double tickSpacing = 30;
+    final double tickRadius = radius - 10;
+    final double labelRadius = tickRadius - tickLength - 10;
+
+    for (int i = 10; i <= 150; i += 10) {
+      final double angle = -pi / 2 + 2 * pi * (i / 150);
+
+      if (i % 50 == 0) {
+        // Draw the label
+        final double labelX = centerX + (labelRadius - 5) * cos(angle);
+        final double labelY = centerY + (labelRadius - 5) * sin(angle);
+        canvas.drawRect(Rect.fromLTWH(labelX - tickTextPainter.width / 2, labelY - tickTextPainter.height / 2, tickTextPainter.width, tickTextPainter.height), Paint()..color = Colors.black);
+        tickTextPainter.paint(canvas, Offset(labelX, labelY));
+
+        // Draw the tick
+        final double tickX1 = centerX + (tickRadius - 5) * cos(angle);
+        final double tickY1 = centerY + (tickRadius - 5) * sin(angle);
+        final double tickX2 = centerX + (tickRadius + 5) * cos(angle);
+        final double tickY2 = centerY + (tickRadius + 5) * sin(angle);
+        canvas.drawLine(Offset(tickX1, tickY1), Offset(tickX2, tickY2), arcPaint);
+      } else {
+        // Draw the tick
+        final double tickX = centerX + (tickRadius - 5) * cos(angle);
+        final double tickY = centerY + (tickRadius - 5) * sin(angle);
+        canvas.drawLine(Offset(tickX, tickY), Offset(tickX + tickLength * cos(angle), tickY + tickLength * sin(angle)), arcPaint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+}

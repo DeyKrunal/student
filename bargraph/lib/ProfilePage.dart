@@ -91,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         CircleAvatar(
                           radius: 70.0, // Sets the radius of the circle avatar
-                          backgroundImage: NetworkImage("http://localhost:81/pro/upload/" + g.image), // Specifies the image to display
+                          backgroundImage: NetworkImage("http://project-pilot.000webhostapp.com/upload/${g.image}"), // Specifies the image to display
                         ),
                         const SizedBox(height: 16.0),
                         Text(

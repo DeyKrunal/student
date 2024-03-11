@@ -3,20 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ChartPage extends StatefulWidget {
+
+class ProgressPage extends StatefulWidget {
   @override
-  _ProgressScreenState createState() => _ProgressScreenState();
+  State<ProgressPage> createState() => _ProgressPageState();
 }
 
-class _ProgressScreenState extends State<ChartPage> {
-  Future<List<Map<dynamic,dynamic>>>? _progressData;
-  var fid,gid;
-
+class _ProgressPageState extends State<ProgressPage> {
+  var gid;
   @override
   void initState() {
     super.initState();
     _readData();
-    _progressData = getProgressData() as Future<List<Map<dynamic, dynamic>>>?;
   }
 
   Future<void> _readData() async {
@@ -33,61 +31,52 @@ class _ProgressScreenState extends State<ChartPage> {
       });
       print('No value found for the key');
     }
+  }
 
-    String? value2 = prefs.getString('fid');
-    if (value2 != null) {
-      setState(() {
-        fid = value2; // Update the user variable with the retrieved value
-      });
-      print("fid = ${value2}");
+  Future<List<Map<String, dynamic>>> fetchData(int groupId) async {
+    final response = await http.get(Uri.parse('https://project-pilot.000webhostapp.com/API/progress_name_data.php?fid=${gid}'));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return List<Map<String, dynamic>>.from(data);
     } else {
-      setState(() {
-        fid = "guest"; // Set user to "guest" if no value is found
-      });
-      print('No value found for the key');
+      throw Exception('Failed to load data');
     }
   }
-  Future<List<Map<dynamic,dynamic>>> getProgressData() async {
-    final response = await http.post(
-        Uri.parse('https://project-pilot.000webhostapp.com/API/progress_name_data.php'),
-        body: {"fid":gid}
-    );
-    print(response.body);
-    return jsonDecode(response.body);
-  }
-
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Map<dynamic,dynamic>>>(
-      future: getProgressData(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text('Error: ${snapshot.error}'),
-          );
-        } else if (snapshot.hasData) {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final title = snapshot.data![index]['title'];
-              final progress = snapshot.data![index]['progress'];
-              return SquareCard(
-                title: title,
-                progress: progress,
-              );
-            },
-          );
-        } else {
-          return Center(
-            child: Text('No progress data available'),
-          );
-        }
-      },
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white60,
+        title: Center(child:Text('All Progress')),
+      ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: fetchData(9),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            final progressData = snapshot.data!;
+            return ListView.builder(
+              itemCount: progressData.length,
+              itemBuilder: (context, index) {
+                double cardWidth = MediaQuery.of(context).size.width * 0.7;
+                final item = progressData[index];
+                final title = item['title'] ?? '';
+                final progress = int.tryParse(item['progress'] ?? '0') ?? 0;
+                return SquareCard(
+                  title: title,
+                  progress: progress,
+                  cardWidth: cardWidth,
+                  alignRight: index.isEven,
+                );
+              },
+            );
+          }
+        },
+      ),
     );
   }
 }
@@ -95,71 +84,129 @@ class _ProgressScreenState extends State<ChartPage> {
 class SquareCard extends StatelessWidget {
   final String title;
   final int progress;
+  final double cardWidth;
+  final bool alignRight;
 
   SquareCard({
     required this.title,
     required this.progress,
+    required this.cardWidth,
+    this.alignRight = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.white,
-      ),
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      padding: EdgeInsets.all(10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+    double progressWidth = cardWidth * (progress / 100);
+
+    return Align(
+      alignment: alignRight ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        width: cardWidth,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.deepPurple[100],
+        ),
+        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        padding: EdgeInsets.all(10),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 5,
             ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 5,
-          ),
-          SizedBox(height: 15),
-          Stack(
-            children: [
-              Container(
-                height: 10,
-                decoration: BoxDecoration(
-                  color: Color(0xFFF7E7E9),
-                  borderRadius: BorderRadius.circular(10),
+            SizedBox(height: 15),
+            Stack(
+              children: [
+                Container(
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF7E7E9),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-              ),
-              Container(
-                height: 10,
-                width: progress.toDouble(),
-                decoration: BoxDecoration(
-                  color: Color(0xFFEE93A2),
-                  borderRadius: BorderRadius.circular(10),
+                Container(
+                  height: 10,
+                  width: progressWidth,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFEE93A2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 15),
-          Row(
-            children: [
-              SizedBox(width: 10),
-              Text(
-                '$progress%',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+              ],
+            ),
+            SizedBox(height: 15),
+            Row(
+              children: [
+                SizedBox(width: 10),
+                Text(
+                  '$progress%',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
+// class SquareCard extends StatelessWidget {
+//   final String title;
+//   final int progress;
+//
+//   SquareCard({
+//     required this.title,
+//     required this.progress,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: EdgeInsets.all(10),
+//       padding: EdgeInsets.all(20),
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(10),
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.stretch,
+//         children: [
+//           Text(
+//             title,
+//             style: TextStyle(
+//               fontSize: 18,
+//               fontWeight: FontWeight.bold,
+//             ),
+//           ),
+//           SizedBox(height: 10),
+//           LinearProgressIndicator(
+//             value: progress / 100,
+//             backgroundColor: Colors.grey[300],
+//             valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+//           ),
+//           SizedBox(height: 10),
+//           Text(
+//             '$progress%',
+//             textAlign: TextAlign.right,
+//             style: TextStyle(
+//               fontSize: 16,
+//               fontWeight: FontWeight.bold,
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

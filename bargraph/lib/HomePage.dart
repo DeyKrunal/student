@@ -1,11 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:html';
-
 import 'package:bargraph/modal/view_progress.dart';
-import 'package:bargraph/task.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/cupertino.dart';
@@ -27,18 +22,18 @@ class _MyHomePageState extends State<MyHomePage> {
   late group g;
   late Faculty f;
   late progress p;
-  // late Map<String,dynamic> ud ;
   var fid,gid;
   var amt = 0;
   List<double> groupProgressData = [];
+  Map<String, dynamic> jsonData = {};
 
   @override
   void initState() {
     super.initState();
     print("Hello");
-    loadData();
+    fetchData3();
     _readData();
-    print(fetchData3());
+    // print(fetchData3());
   }
   double _progressValue = 600;
 
@@ -48,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<void> _readData() async {
+ Future<void> _readData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? value1 = prefs.getString('gid');
     if (value1 != null) {
@@ -94,36 +89,85 @@ class _MyHomePageState extends State<MyHomePage> {
     return jsonDecode(res.body);
   }
 
-  void loadData() async {
-    var x = await fetchData3();
-    print(x);
-    //final json = x as Map<dynamic, dynamic>;
-    //var a = progress.fromJson(json);
-    print(x["proid"]);
-    amt = x["count"];
-    print("Total = ${amt}");
-    for (var i = 1; i <= 9; i++) {
-      print( x["p"+i.toString()]);
-      groupProgressData.add(int.parse(x["p"+i.toString()]) as double);
-    }
-  }
+  // void loadData() {
+  //   print("LoadData");
+  //   var x = fetchData3();
+  //   print(x);
+  // }
+  //
+  // Future<Map<String,dynamic>> fetchData3() async {
+  //   String uri = "https://project-pilot.000webhostapp.com/API/progress_api.php";
+  //   var res = await http.post(Uri.parse(uri),body: {
+  //     "grp_id":"${gid}"
+  //   });
+  //   print(res.body);
+  //   return jsonDecode(res.body);
+  // }
+ // Define a variable to store the fetched JSON data
 
-  Future<Map<dynamic,dynamic>> fetchData3() async {
+ //  void loadData() {
+ //    print("LoadData");
+ //    fetchData3().then((data) {
+ //      jsonData = data; // Store the fetched data in the jsonData variable
+ //      print(jsonData); // Print the stored data
+ //      // Process the fetched data here or access specific values like jsonData['proid'], jsonData['date'], etc.
+ //    }).catchError((error) {
+ //      print("Error fetching data: $error");
+ //      // Handle errors appropriately
+ //    });
+ //  }
+ //
+ //  Future<Map<String, dynamic>> fetchData3() async {
+ //    String uri = "https://project-pilot.000webhostapp.com/API/progress_api.php";
+ //    try {
+ //      var res = await http.post(Uri.parse(uri), body: {"grp_id": "${gid}"});
+ //      if (res.statusCode == 200) {
+ //        print(res.body);
+ //        return jsonDecode(res.body);
+ //      } else {
+ //        throw Exception('Failed to load data');
+ //      }
+ //    } catch (e) {
+ //      print("Error: $e");
+ //      throw Exception('Failed to load data');
+ //    }
+ //  }
+
+  Future<Map<String, dynamic>> fetchData3() async {
     String uri = "https://project-pilot.000webhostapp.com/API/progress_api.php";
-    var res = await http.post(Uri.parse(uri),body: {
-      "grp_id":"${gid}"
-    });
-    print(res.body);
-    return jsonDecode(res.body);
+
+    try {
+      var res = await http.post(Uri.parse(uri), body: {"grp_id": "${gid}"});
+
+      if (res.statusCode == 200) {
+        Map<String, dynamic> jsonData = jsonDecode(res.body);
+
+        int sumPValues() {
+          int sum = 0;
+          for (int i = 1; i <= 9; i++) {
+            sum += int.parse(jsonData['p$i'] ?? '0');
+          }
+          print("Sum = ${sum}");
+          return sum;
+        }
+
+        print('Sum of p1 to p9 values: ${sumPValues()}');
+
+        return jsonData;
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print("Error: $e");
+      throw Exception('Failed to load data');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body:SingleChildScrollView(
-
         padding: EdgeInsets.all(16.0),
-
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -139,11 +183,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   return Center(child: Text("Something went wrong"));
                 }else{
                   g = group.fromJson(snapshot.data!);
+                  int x = (_progressValue * 100 / 900).toInt();
                   return RectangleCardWidget(
                     imagePath: 'assets/man.jpg',
                     groupName: ' Group 0${g.gsid}',
                     groupId: g.groupName,
-                    progressPercentage: 70, // Example progress percentage
+                    progressPercentage: x, // Example progress percentage
                   );
                 }
               },
@@ -309,25 +354,25 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  List<BarChartGroupData> createBarGroups() {  List<BarChartGroupData> barGroups = [];
-
-  for (int i = 0; i < groupProgressData.length; i++) {
-    print(groupProgressData[i]);
-    barGroups.add(
-      BarChartGroupData(
-        x: i,
-        barRods: [
-          BarChartRodData(
-            width: 30.0,
-            y: groupProgressData[i],
-          ),
-        ],
-      ),
-    );
-  }
-
-  return barGroups;
-  }
+  // List<BarChartGroupData> createBarGroups() {  List<BarChartGroupData> barGroups = [];
+  //
+  // for (int i = 0; i < groupProgressData.length; i++) {
+  //   print(groupProgressData[i]);
+  //   barGroups.add(
+  //     BarChartGroupData(
+  //       x: i,
+  //       barRods: [
+  //         BarChartRodData(
+  //           width: 30.0,
+  //           y: groupProgressData[i],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+  //
+  // return barGroups;
+  // }
 }
 // class HomePage extends StatelessWidget {
 //   @override

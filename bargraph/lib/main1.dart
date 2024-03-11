@@ -1,3 +1,4 @@
+import 'package:bargraph/ChatBot.dart';
 import 'package:bargraph/splash.dart';
 import 'package:flutter/material.dart';
 
@@ -32,7 +33,7 @@ class _BottomNavigationDemoState extends State<BottomNavigationDemo> {
 
   final List<Widget> _pages = [
     MyHomePage(),
-    ChartPage(),
+    ProgressPage(),
     AddSchedule(),
     ProfilePage(),
   ];
@@ -71,6 +72,16 @@ class _BottomNavigationDemoState extends State<BottomNavigationDemo> {
             backgroundColor: Colors.blue[300],
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        elevation: 5,
+          backgroundColor: Colors.deepPurple[200],
+          onPressed: (){
+            Navigator.push(
+              context , MaterialPageRoute(builder: (context) => ChatPage())
+            );
+          },
+        child: Icon(Icons.chat)
       ),
     );
   }

@@ -184,7 +184,10 @@ class _group_formState extends State<group_form> {
                                       var _div =  dropval.toString();
                                       _saveData1(_name,_rno,_cno,_email,_div);
                                       // var pwd = _passwordController.text;
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Tab2()));
+                                      Navigator.push(context,
+                                          MaterialPageRoute(builder: (context) => Tab2(name1:_name,rno1:_rno,cno1:_cno,email1:_email,div1:_div)
+                                          )
+                                      );
                                     }
                                   },
                                 ),
@@ -211,7 +214,7 @@ class _group_formState extends State<group_form> {
                                       var _div =  dropval.toString();
                                       _saveData1(_name,_rno,_cno,_email,_div);
                                       // var pwd = _passwordController.text;
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Tab5()));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Tab5(name1:_name,rno1:_rno,cno1:_cno,email1:_email,div1:_div,name2:"",rno2:"",cno2:"",email2:"",div2:"",name3:"",rno3:"",cno3:"",email3:"",div3:"",name4:"",rno4:"",cno4:"",email4:"",div4:"")));
                                     }
                                   },
                                   backgroundColor: Colors.white,
@@ -248,15 +251,17 @@ Future<void> _saveData1(String name, String rno, String cno, String email, Strin
   print("Div = ${div}");
 }
 
+//========================================================== Tab2 =====================================================
 class Tab2 extends StatefulWidget {
-  const Tab2({super.key});
+
+  String name1,rno1,cno1,email1,div1;
+  Tab2({super.key,required this.name1,required this.rno1,required this.cno1,required this.email1,required this.div1});
 
   @override
   State<Tab2> createState() => _Tab2State();
 }
 
 class _Tab2State extends State<Tab2> {
-
   final formKey = GlobalKey<FormState>();
   String dropval = "TY-DIV-1";
   List<String> cityval = [
@@ -274,6 +279,12 @@ class _Tab2State extends State<Tab2> {
 
   @override
   Widget build(BuildContext context) {
+    String name1 = widget.name1;
+    String rno1 = widget.rno1;
+    String cno1 = widget.cno1;
+    String email1 = widget.email1;
+    String div1 = widget.div1;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('2nd Student Details'),
@@ -420,7 +431,7 @@ class _Tab2State extends State<Tab2> {
                                       var _div2 =  dropval.toString();
                                       _saveData2(_name2,_rno2,_cno2,_email2,_div2);
                                       // var pwd = _passwordController.text;
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Tab3()));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Tab3(name1:name1,rno1:rno1,cno1:cno1,email1:email1,div1:div1,name2:_name2,rno2:_rno2,cno2:_cno2,email2:_email2,div2:_div2)));
                                     }
                                   },
                                 ),
@@ -436,9 +447,6 @@ class _Tab2State extends State<Tab2> {
                                     ),
                                   ),
                                 ),
-
-
-
                                 Padding(padding: EdgeInsets.fromLTRB(0,0, 0, 0),
                                   child:FloatingActionButton(
                                       onPressed: (){
@@ -450,7 +458,7 @@ class _Tab2State extends State<Tab2> {
                                           var _div2 =  dropval.toString();
                                           _saveData2(_name2,_rno2,_cno2,_email2,_div2);
                                           // var pwd = _passwordController.text;
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) => Tab5()));
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => Tab5(name1:name1,rno1:rno1,cno1:cno1,email1:email1,div1:div1,name2:_name2,rno2:_rno2,cno2:_cno2,email2:_email2,div2:_div2,name3:"",rno3:"",cno3:"",email3:"",div3:"",name4:"",rno4:"",cno4:"",email4:"",div4:"")));
                                         }
                                       },
                                       backgroundColor: Colors.white,
@@ -488,8 +496,11 @@ Future<void> _saveData2(String name2, String rno2, String cno2, String email2, S
   print("Div2 = ${div2}");
 }
 
+//========================================================== Tab3 =====================================================
+
 class Tab3 extends StatefulWidget {
-  const Tab3({super.key});
+  String name1,rno1,cno1,email1,div1,name2,rno2,cno2,email2,div2;
+  Tab3({super.key,required this.name1,required this.rno1,required this.cno1,required this.email1,required this.div1,required this.name2,required this.rno2,required this.cno2,required this.email2,required this.div2});
 
   @override
   State<Tab3> createState() => _Tab3State();
@@ -514,6 +525,17 @@ class _Tab3State extends State<Tab3> {
 
   @override
   Widget build(BuildContext context) {
+    String name1 = widget.name1;
+    String rno1 = widget.rno1;
+    String cno1 = widget.cno1;
+    String email1 = widget.email1;
+    String div1 = widget.div1;
+    String name2 = widget.name2;
+    String rno2 = widget.rno2;
+    String cno2 = widget.cno2;
+    String email2 = widget.email2;
+    String div2 = widget.div2;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('3rd Student Details'),
@@ -659,7 +681,7 @@ class _Tab3State extends State<Tab3> {
                                       var _div3 =  dropval.toString();
                                       _saveData3(_name3,_rno3,_cno3,_email3,_div3);
                                       // var pwd = _passwordController.text;
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Tab4()));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Tab4(name1:name1,rno1:rno1,cno1:cno1,email1:email1,div1:div1,name2:name2,rno2:rno2,cno2:cno2,email2:email2,div2:div2,name3:_name3,rno3:_rno3,cno3:_cno3,email3:_email3,div3:_div3)));
                                     }
                                   },
                                 ),
@@ -674,16 +696,17 @@ class _Tab3State extends State<Tab3> {
                                     ),
                                   ),
                                 ),
-
-
-
                                 Padding(padding: EdgeInsets.fromLTRB(0,0, 0, 0),
                                   child:FloatingActionButton(
                                       onPressed: (){
                                         if (formKey.currentState!.validate()) {
-                                          var _name = name.text;
+                                          var _name3 = name.text;
+                                          var _rno3 = rollno.text;
+                                          var _cno3 = cno.text;
+                                          var _email3 = email.text;
+                                          var _div3 =  dropval.toString();
                                           // var pwd = _passwordController.text;
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) => Tab5()));
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => Tab5(name1:name1,rno1:rno1,cno1:cno1,email1:email1,div1:div1,name2:name2,rno2:rno2,cno2:cno2,email2:email2,div2:div2,name3:_name3,rno3:_rno3,cno3:_cno3,email3:_email3,div3:_div3,name4:"",rno4:"",cno4:"",email4:"",div4:"")));
                                         }
                                       },
                                       backgroundColor: Colors.white,
@@ -721,8 +744,13 @@ Future<void> _saveData3(String name3, String rno3, String cno3, String email3, S
   print("Div3 = ${div3}");
 }
 
+//========================================================== Tab4 =====================================================
+
 class Tab4 extends StatefulWidget {
-  const Tab4({super.key});
+
+  String name1,rno1,cno1,email1,div1,name2,rno2,cno2,email2,div2,name3,rno3,cno3,email3,div3;
+  Tab4({super.key,required this.name1,required this.rno1,required this.cno1,required this.email1,required this.div1,required this.name2,required this.rno2,required this.cno2,required this.email2,required this.div2,required this.name3,required this.rno3,required this.cno3,required this.email3,required this.div3});
+
 
   @override
   State<Tab4> createState() => _Tab4State();
@@ -747,6 +775,22 @@ class _Tab4State extends State<Tab4> {
 
   @override
   Widget build(BuildContext context) {
+    String name1 = widget.name1;
+    String rno1 = widget.rno1;
+    String cno1 = widget.cno1;
+    String email1 = widget.email1;
+    String div1 = widget.div1;
+    String name2 = widget.name2;
+    String rno2 = widget.rno2;
+    String cno2 = widget.cno2;
+    String email2 = widget.email2;
+    String div2 = widget.div2;
+    String name3 = widget.name3;
+    String rno3 = widget.rno3;
+    String cno3 = widget.cno3;
+    String email3 = widget.email3;
+    String div3 = widget.div3;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('4th Student Details'),
@@ -892,7 +936,7 @@ class _Tab4State extends State<Tab4> {
                                       var _div4 =  dropval.toString();
                                       _saveData4(_name4,_rno4,_cno4,_email4,_div4);
                                       // var pwd = _passwordController.text;
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Tab5()));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => Tab5(name1:name1,rno1:rno1,cno1:cno1,email1:email1,div1:div1,name2:name2,rno2:rno2,cno2:cno2,email2:email2,div2:div2,name3:name3,rno3:rno3,cno3:cno3,email3:email3,div3:div3,name4:_name4,rno4:_rno4,cno4:_cno4,email4:_email4,div4:_div4)));
                                     }
                                   },
                                 ),
@@ -920,15 +964,23 @@ Future<void> _saveData4(String name4, String rno4, String cno4, String email4, S
   print("Email4 = ${email4}");
   print("Div4 = ${div4}");
 }
-class Tab5 extends StatefulWidget {
-  const Tab5({super.key});
 
+//========================================================== Tab5 =====================================================
+
+class Tab5 extends StatefulWidget {
+  late String name1,rno1,cno1,email1,div1 = "";
+  late String name2,rno2,cno2,email2,div2 = "";
+  late String name3,rno3,cno3,email3,div3 = "";
+  late String name4,rno4,cno4,email4,div4 = "";
+
+  Tab5({super.key,required this.name1,required this.rno1,required this.cno1,required this.email1,required this.div1,required this.name2,required this.rno2,required this.cno2,required this.email2,required this.div2,required this.name3,required this.rno3,required this.cno3,required this.email3,required this.div3,required this.name4,required this.rno4,required this.cno4,required this.email4,required this.div4});
   @override
   State<Tab5> createState() => _Tab5State();
 }
 
 class _Tab5State extends State<Tab5> {
-
+  bool _passwordVisible = true;
+  bool _passwordVisible1 = true;
   final formKey = GlobalKey<FormState>();
   String dropval = "TY-DIV-1";
   List<String> cityval = [
@@ -946,6 +998,30 @@ class _Tab5State extends State<Tab5> {
 
   @override
   Widget build(BuildContext context) {
+    String name1 = widget.name1;
+    String rno1 = widget.rno1;
+    String cno1 = widget.cno1;
+    String email1 = widget.email1;
+    String div1 = widget.div1;
+
+    String name2 = widget.name2;
+    String rno2 = widget.rno2;
+    String cno2 = widget.cno2;
+    String email2 = widget.email2;
+    String div2 = widget.div2;
+
+    String name3 = widget.name3;
+    String rno3 = widget.rno3;
+    String cno3 = widget.cno3;
+    String email3 = widget.email3;
+    String div3 = widget.div3;
+
+    String name4 = widget.name4;
+    String rno4 = widget.rno4;
+    String cno4 = widget.cno4;
+    String email4 = widget.email4;
+    String div4 = widget.div4;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Project and Group Details'),
@@ -996,13 +1072,21 @@ class _Tab5State extends State<Tab5> {
                               child: TextFormField(
                                 controller: pwd,
                                 keyboardType: TextInputType.text,
-                                obscureText:true,
+                                obscureText:_passwordVisible,
                                 decoration: InputDecoration(
                                   icon: Icon(Icons.lock, color: Colors.black),
                                   labelText: "Create Password",
                                   hintText: "Create Password",
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(_passwordVisible ? Icons.visibility_off : Icons.visibility,color: Colors.black,),
+                                    onPressed: () {
+                                      setState(() {
+                                        _passwordVisible = !_passwordVisible;
+                                      });
+                                    },
                                   ),
                                 ),
                                 validator: (value) {
@@ -1018,13 +1102,21 @@ class _Tab5State extends State<Tab5> {
                               child: TextFormField(
                                 controller: cpwd,
                                 keyboardType: TextInputType.text,
-                                obscureText:true,
+                                obscureText:_passwordVisible1,
                                 decoration: InputDecoration(
                                   icon: Icon(Icons.lock, color: Colors.black),
                                   labelText: "Confirm Password",
                                   hintText: "Confirm Password",
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(_passwordVisible1 ? Icons.visibility_off : Icons.visibility,color: Colors.black,),
+                                    onPressed: () {
+                                      setState(() {
+                                        _passwordVisible1 = !_passwordVisible1;
+                                      });
+                                    },
                                   ),
                                 ),
                                 validator: (value) {
@@ -1061,8 +1153,8 @@ class _Tab5State extends State<Tab5> {
                                       var _cpwd = cpwd.text;
                                       if(_pwd==_cpwd)
                                         {
-                                          _saveDataf(groupName,_pwd);
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                                          _saveDataf(groupName,_pwd,name1,rno1,cno1,email1,div1,name2,rno2,cno2,email2,div2,name3,rno3,cno3,email3,div3,name4,rno4,cno4,email4,div4);
+                                          // Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
                                         }
                                       else{
                                         final snackBar = SnackBar(
@@ -1097,9 +1189,38 @@ class _Tab5State extends State<Tab5> {
   }
 }
 
-Future<void> _saveDataf(String groupName, String pwd) async {
+Future<void> _saveDataf(String groupName, String pwd,String name1,String rno1,String cno1,String email1,String div1,String name2,String rno2,String cno2,String email2,String div2,String name3,String rno3,String cno3,String email3,String div3,String name4,String rno4,String cno4,String email4,String div4) async {
+  print("============= Final Data ===========");
   print("Group Name = ${groupName}");
   print("Password = ${pwd}");
+
+  print("======== Tab1 ========");
+  print("Name1 = ${name1}");
+  print("Roll no1 = ${rno1}");
+  print("Cno1 = ${cno1}");
+  print("Email1 = ${email1}");
+  print("Div1 = ${div1}");
+
+  print("======== Tab2 ========");
+  print("Name2 = ${name2}");
+  print("Roll no2 = ${rno2}");
+  print("Cno2 = ${cno2}");
+  print("Email2 = ${email2}");
+  print("Div2 = ${div2}");
+
+  print("======== Tab3 ========");
+  print("Name3 = ${name3}");
+  print("Roll no3 = ${rno3}");
+  print("Cno3 = ${cno3}");
+  print("Email3 = ${email3}");
+  print("Div3 = ${div3}");
+
+  print("======== Tab3 ========");
+  print("Name4 = ${name4}");
+  print("Roll no4 = ${rno4}");
+  print("Cno4 = ${cno4}");
+  print("Email4 = ${email4}");
+  print("Div4 = ${div4}");
 }
 
 

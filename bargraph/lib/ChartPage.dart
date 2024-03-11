@@ -1,395 +1,165 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChartPage extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _ProgressScreenState createState() => _ProgressScreenState();
 }
 
-class _MyHomePageState extends State<ChartPage> {
-  final List<double> groupProgressData = [50, 75, 30, 90, 10, 20, 20, 90, 40];
+class _ProgressScreenState extends State<ChartPage> {
+  Future<List<Map<dynamic,dynamic>>>? _progressData;
+  var fid,gid;
+
+  @override
+  void initState() {
+    super.initState();
+    _readData();
+    _progressData = getProgressData() as Future<List<Map<dynamic, dynamic>>>?;
+  }
+
+  Future<void> _readData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? value1 = prefs.getString('gid');
+    if (value1 != null) {
+      setState(() {
+        gid = value1; // Update the user variable with the retrieved value
+      });
+      print("gid = ${value1}");
+    } else {
+      setState(() {
+        gid = "guest"; // Set user to "guest" if no value is found
+      });
+      print('No value found for the key');
+    }
+
+    String? value2 = prefs.getString('fid');
+    if (value2 != null) {
+      setState(() {
+        fid = value2; // Update the user variable with the retrieved value
+      });
+      print("fid = ${value2}");
+    } else {
+      setState(() {
+        fid = "guest"; // Set user to "guest" if no value is found
+      });
+      print('No value found for the key');
+    }
+  }
+  Future<List<Map<dynamic,dynamic>>> getProgressData() async {
+    final response = await http.post(
+        Uri.parse('https://project-pilot.000webhostapp.com/API/progress_name_data.php'),
+        body: {"fid":gid}
+    );
+    print(response.body);
+    return jsonDecode(response.body);
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  height: 200.0, // Set the desired height of the chart
-                  width: double.infinity,
-                  child: BarChart(
-                    BarChartData(
-                        backgroundColor: Colors.grey[200],
-                        alignment: BarChartAlignment.spaceAround,
-                        maxY: 100,
-                        barGroups: createBarGroups(),
-                        titlesData: FlTitlesData(
-                          leftTitles: SideTitles(
-                              showTitles:
-                              true, // Set showTitles to false to hide the left axis titles
-                              interval: 10,
-                              getTextStyles: (context, value) => const TextStyle(
-                                fontSize: 10,
-                              )),
-                          rightTitles: SideTitles(
-                            showTitles:
-                            false, // Set showTitles to false to hide the right axis titles
-                          ),
-                          bottomTitles: SideTitles(
-                            showTitles: true,
-                            rotateAngle: 270,
-                            margin: 8,
-                            getTextStyles: (context, value) => const TextStyle(
-                              color: Colors.black,
-                              fontSize: 10,
-                            ),
-                            getTitles: (double value) {
-                              // Customize the group names on the bottom axis
-                              switch (value.toInt()) {
-                                case 0:
-                                  return 'A';
-                                case 1:
-                                  return 'B';
-                                case 2:
-                                  return 'c';
-                                case 3:
-                                  return 'D';
-                                default:
-                                  return '';
-                              }
-                            },
-                          ),
-                          topTitles: SideTitles(
-                            rotateAngle: 270,
-                            showTitles: false,
-                            getTextStyles: (context, value) => const TextStyle(
-                              color: Colors.black,
-                              fontSize: 10,
-                            ),
-                            getTitles: (double value) {
-                              // Customize the group names on the bottom axis
-                              switch (value.toInt()) {
-                                case 0:
-                                  return 'A';
-                                case 1:
-                                  return 'B';
-                                case 2:
-                                  return 'C';
-                                case 3:
-                                  return 'D';
-                                default:
-                                  return '';
-                              }
-                            },
-                          ),
-                        ),
-                        borderData: FlBorderData(show: false),
-                        gridData: FlGridData(show: false),
-                        groupsSpace: 1.0),
-                  ),
-                )
-            ),
-            Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  height: 200.0, // Set the desired height of the chart
-                  width: double.infinity,
-                  child: BarChart(
-                    BarChartData(
-                        backgroundColor: Colors.grey[200],
-                        alignment: BarChartAlignment.spaceAround,
-                        maxY: 100,
-                        barGroups: createBarGroups1(),
-                        titlesData: FlTitlesData(
-                          leftTitles: SideTitles(
-                              showTitles:
-                              true, // Set showTitles to false to hide the left axis titles
-                              interval: 10,
-                              getTextStyles: (context, value) => const TextStyle(
-                                fontSize: 10,
-                              )),
-                          rightTitles: SideTitles(
-                            showTitles:
-                            false, // Set showTitles to false to hide the right axis titles
-                          ),
-                          bottomTitles: SideTitles(
-                            showTitles: true,
-                            rotateAngle: 270,
-                            margin: 8,
-                            getTextStyles: (context, value) => const TextStyle(
-                              color: Colors.black,
-                              fontSize: 10,
-                            ),
-                            getTitles: (double value) {
-                              // Customize the group names on the bottom axis
-                              switch (value.toInt()) {
-                                case 0:
-                                  return 'A';
-                                case 1:
-                                  return 'B';
-                                case 2:
-                                  return 'c';
-                                case 3:
-                                  return 'D';
-                                default:
-                                  return '';
-                              }
-                            },
-                          ),
-                          topTitles: SideTitles(
-                            rotateAngle: 270,
-                            showTitles: false,
-                            getTextStyles: (context, value) => const TextStyle(
-                              color: Colors.black,
-                              fontSize: 10,
-                            ),
-                            getTitles: (double value) {
-                              // Customize the group names on the bottom axis
-                              switch (value.toInt()) {
-                                case 0:
-                                  return 'A';
-                                case 1:
-                                  return 'B';
-                                case 2:
-                                  return 'C';
-                                case 3:
-                                  return 'D';
-                                default:
-                                  return '';
-                              }
-                            },
-                          ),
-                        ),
-                        borderData: FlBorderData(show: false),
-                        gridData: FlGridData(show: false),
-                        groupsSpace: 1.0),
-                  ),
-                )
-            ),
-            Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  height: 200.0, // Set the desired height of the chart
-                  width: double.infinity,
-                  child: BarChart(
-                    BarChartData(
-                        backgroundColor: Colors.grey[200],
-                        alignment: BarChartAlignment.spaceAround,
-                        maxY: 100,
-                        barGroups: createBarGroups3(),
-                        titlesData: FlTitlesData(
-                          leftTitles: SideTitles(
-                              showTitles:
-                              true, // Set showTitles to false to hide the left axis titles
-                              interval: 10,
-                              getTextStyles: (context, value) => const TextStyle(
-                                fontSize: 10,
-                              )),
-                          rightTitles: SideTitles(
-                            showTitles:
-                            false, // Set showTitles to false to hide the right axis titles
-                          ),
-                          bottomTitles: SideTitles(
-                            showTitles: true,
-                            rotateAngle: 270,
-                            margin: 8,
-                            getTextStyles: (context, value) => const TextStyle(
-                              color: Colors.black,
-                              fontSize: 10,
-                            ),
-                            getTitles: (double value) {
-                              // Customize the group names on the bottom axis
-                              switch (value.toInt()) {
-                                case 0:
-                                  return 'A';
-                                case 1:
-                                  return 'B';
-                                case 2:
-                                  return 'c';
-                                case 3:
-                                  return 'D';
-                                default:
-                                  return '';
-                              }
-                            },
-                          ),
-                          topTitles: SideTitles(
-                            rotateAngle: 270,
-                            showTitles: false,
-                            getTextStyles: (context, value) => const TextStyle(
-                              color: Colors.black,
-                              fontSize: 10,
-                            ),
-                            getTitles: (double value) {
-                              // Customize the group names on the bottom axis
-                              switch (value.toInt()) {
-                                case 0:
-                                  return 'A';
-                                case 1:
-                                  return 'B';
-                                case 2:
-                                  return 'C';
-                                case 3:
-                                  return 'D';
-                                default:
-                                  return '';
-                              }
-                            },
-                          ),
-                        ),
-                        borderData: FlBorderData(show: false),
-                        gridData: FlGridData(show: false),
-                        groupsSpace: 1.0),
-                  ),
-                )
-            ),
-
-          ],
-        ),
-      ),
-
-      // bottomNavigationBar: BottomNavigationBar(
-      // 	items: const <BottomNavigationBarItem>[
-      // 		BottomNavigationBarItem(
-      // 			icon: Icon(Icons.home),
-      // 			label:'Home',
-      // 		),
-      // 		BottomNavigationBarItem(
-      // 			icon: Icon(Icons.insights),
-      // 			label:'Home',
-      // 		),
-      // 		BottomNavigationBarItem(
-      // 			icon: Icon(Icons.chat),
-      // 			label:'Home',
-      // 		),
-      // 		BottomNavigationBarItem(
-      // 			icon: Icon(Icons.settings),
-      // 			label:'Home',
-      // 		),
-      // 	],
-      // 	selectedItemColor: Colors.blue, // Color of the selected item icon and text
-      // 	selectedLabelStyle: TextStyle(color: Colors.blue),
-      // 	unselectedItemColor: Colors.green,
-      // ),
+    return FutureBuilder<List<Map<dynamic,dynamic>>>(
+      future: getProgressData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        } else if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (context, index) {
+              final title = snapshot.data![index]['title'];
+              final progress = snapshot.data![index]['progress'];
+              return SquareCard(
+                title: title,
+                progress: progress,
+              );
+            },
+          );
+        } else {
+          return Center(
+            child: Text('No progress data available'),
+          );
+        }
+      },
     );
   }
-
-  List<BarChartGroupData> createBarGroups() {  List<BarChartGroupData> barGroups = [];
-
-  for (int i = 0; i < groupProgressData.length; i++) {
-    barGroups.add(
-      BarChartGroupData(
-        x: i,
-        barRods: [
-          BarChartRodData(
-            width: 30.0,
-            y: groupProgressData[i],
-          ),
-        ],
-      ),
-    );
-  }
-
-  return barGroups;
-  }
-  List<BarChartGroupData> createBarGroups1() {  List<BarChartGroupData> barGroups = [];
-
-  for (int i = 0; i < groupProgressData.length; i++) {
-    barGroups.add(
-      BarChartGroupData(
-        x: i,
-        barRods: [
-          BarChartRodData(
-            width: 30.0,
-            y: groupProgressData[i],
-          ),
-        ],
-      ),
-    );
-  }
-
-  return barGroups;
-  }
-  List<BarChartGroupData> createBarGroups3() {  List<BarChartGroupData> barGroups = [];
-
-  for (int i = 0; i < groupProgressData.length; i++) {
-    barGroups.add(
-      BarChartGroupData(
-        x: i,
-        barRods: [
-          BarChartRodData(
-            width: 30.0,
-            y: groupProgressData[i],
-          ),
-        ],
-      ),
-    );
-  }
-
-  return barGroups;
-  }
-
-
 }
-class HomePage extends StatelessWidget {
+
+class SquareCard extends StatelessWidget {
+  final String title;
+  final int progress;
+
+  SquareCard({
+    required this.title,
+    required this.progress,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 150,
-      child: Card(
-        color: Colors.blue[100],
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+      ),
+      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      padding: EdgeInsets.all(10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 5,
+          ),
+          SizedBox(height: 15),
+          Stack(
             children: [
-              // Left side: Image
-              // Adjust spacing between image and texts
-              // Right side: Texts
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Title 1',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8.0),
-                    Text(
-                      'Subtitle 1',
-                      style: TextStyle(
-                        fontSize: 14.0,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    SizedBox(height: 8.0),
-                    Text(
-                      'Description 1',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  ],
+              Container(
+                height: 10,
+                decoration: BoxDecoration(
+                  color: Color(0xFFF7E7E9),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               Container(
-                width: 90.0, // Adjust the width as needed
-                height: 90.0, // Adjust the height as needed
+                height: 10,
+                width: progress.toDouble(),
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black,
+                  color: Color(0xFFEE93A2),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              SizedBox(width: 16.0),
             ],
           ),
-        ),
+          SizedBox(height: 15),
+          Row(
+            children: [
+              SizedBox(width: 10),
+              Text(
+                '$progress%',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
-

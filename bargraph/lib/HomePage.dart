@@ -22,33 +22,34 @@ class _MyHomePageState extends State<MyHomePage> {
   late group g;
   late Faculty f;
   late progress p;
-  var fid,gid;
-  var amt = 0;
+  var fid,gid,amt;
+  double _progressValue = 0;
   List<double> groupProgressData = [];
   Map<String, dynamic> jsonData = {};
+  List<Map<String, dynamic>> data = [];
 
   @override
   void initState() {
     super.initState();
-    print("Hello");
-    fetchData3();
+    print("Hello11");
     _readData();
-    // print(fetchData3());
+    fetchData();
   }
-  double _progressValue = 600;
 
   void _updateProgress(double value) {
     setState(() {
       _progressValue = value;
+      print("Progress = ${_progressValue}");
     });
   }
 
- Future<void> _readData() async {
+  Future<void> _readData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? value1 = prefs.getString('gid');
     if (value1 != null) {
       setState(() {
-        gid = value1; // Update the user variable with the retrieved value
+        gid = value1;
+        amt = value1;// Update the user variable with the retrieved value
       });
       print("gid = ${value1}");
     } else {
@@ -89,77 +90,27 @@ class _MyHomePageState extends State<MyHomePage> {
     return jsonDecode(res.body);
   }
 
-  // void loadData() {
-  //   print("LoadData");
-  //   var x = fetchData3();
-  //   print(x);
-  // }
-  //
-  // Future<Map<String,dynamic>> fetchData3() async {
-  //   String uri = "https://project-pilot.000webhostapp.com/API/progress_api.php";
-  //   var res = await http.post(Uri.parse(uri),body: {
-  //     "grp_id":"${gid}"
-  //   });
-  //   print(res.body);
-  //   return jsonDecode(res.body);
-  // }
- // Define a variable to store the fetched JSON data
-
- //  void loadData() {
- //    print("LoadData");
- //    fetchData3().then((data) {
- //      jsonData = data; // Store the fetched data in the jsonData variable
- //      print(jsonData); // Print the stored data
- //      // Process the fetched data here or access specific values like jsonData['proid'], jsonData['date'], etc.
- //    }).catchError((error) {
- //      print("Error fetching data: $error");
- //      // Handle errors appropriately
- //    });
- //  }
- //
- //  Future<Map<String, dynamic>> fetchData3() async {
- //    String uri = "https://project-pilot.000webhostapp.com/API/progress_api.php";
- //    try {
- //      var res = await http.post(Uri.parse(uri), body: {"grp_id": "${gid}"});
- //      if (res.statusCode == 200) {
- //        print(res.body);
- //        return jsonDecode(res.body);
- //      } else {
- //        throw Exception('Failed to load data');
- //      }
- //    } catch (e) {
- //      print("Error: $e");
- //      throw Exception('Failed to load data');
- //    }
- //  }
-
-  Future<Map<String, dynamic>> fetchData3() async {
-    String uri = "https://project-pilot.000webhostapp.com/API/progress_api.php";
-
+  Future<void> fetchData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? value1 = prefs.getString('gid');
+    print("** GID = ${value1}");
     try {
-      var res = await http.post(Uri.parse(uri), body: {"grp_id": "${gid}"});
-
-      if (res.statusCode == 200) {
-        Map<String, dynamic> jsonData = jsonDecode(res.body);
-
-        int sumPValues() {
-          int sum = 0;
-          for (int i = 1; i <= 9; i++) {
-            sum += int.parse(jsonData['p$i'] ?? '0');
-          }
-          print("Sum = ${sum}");
-          return sum;
-        }
-
-        print('Sum of p1 to p9 values: ${sumPValues()}');
-
-        return jsonData;
+      final response = await http.get(
+          Uri.parse('https://project-pilot.000webhostapp.com/API/fetch_progress.php?grpid=${gid}')
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print(response.body);
+        double totalProgress = data['totalProgress'];
+        print("He = ${totalProgress}");
+        setState(() {
+          _progressValue = totalProgress;
+        });
       } else {
         throw Exception('Failed to load data');
       }
     } catch (e) {
-      print("Error: $e");
-      throw Exception('Failed to load data');
+      print('Error fetching data: $e');
     }
   }
 
@@ -230,7 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 positionFactor: 0.8
                             ),
                             GaugeAnnotation(
-                                widget: Text('600', style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.black)),
+                                widget: Text('${_progressValue}', style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Colors.black)),
                                 angle: 90,
                                 positionFactor: 0.0
                             )
@@ -353,7 +304,6 @@ class _MyHomePageState extends State<MyHomePage> {
       // ),
     );
   }
-
   // List<BarChartGroupData> createBarGroups() {  List<BarChartGroupData> barGroups = [];
   //
   // for (int i = 0; i < groupProgressData.length; i++) {

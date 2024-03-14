@@ -625,3 +625,5 @@ class GaugePainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
 
+
+

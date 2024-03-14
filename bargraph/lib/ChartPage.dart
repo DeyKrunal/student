@@ -11,6 +11,17 @@ class ProgressPage extends StatefulWidget {
 
 class _ProgressPageState extends State<ProgressPage> {
   var gid;
+  List<String> arr = [
+    "Project Profile & Objectives",
+    "Requirement Specifications",
+    "Project Modules & Flow",
+    "Data Dictionary & Table Relations",
+    "DFD Or USeCase Or UML Etc..",
+    "BackEnd Or UserSide",
+    "FrontEnd Or AdminSide",
+    "Testing & Validations",
+    "Documentations"
+  ];
   @override
   void initState() {
     super.initState();
@@ -33,25 +44,15 @@ class _ProgressPageState extends State<ProgressPage> {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchData(int groupId) async {
-    final response = await http.get(Uri.parse('https://project-pilot.000webhostapp.com/API/progress_name_data.php?fid=${gid}'));
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return List<Map<String, dynamic>>.from(data);
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white60,
-        title: Center(child:Text('All Progress')),
+        title: Center(child:Text('Group Progress')),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchData(9),
+        future: fetchData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -59,13 +60,14 @@ class _ProgressPageState extends State<ProgressPage> {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
             final progressData = snapshot.data!;
-            return ListView.builder(
-              itemCount: progressData.length,
+            return progressData[0]["error"] != "No data found" ?
+              ListView.builder(
+              itemCount: progressData.length ,
               itemBuilder: (context, index) {
                 double cardWidth = MediaQuery.of(context).size.width * 0.7;
                 final item = progressData[index];
-                final title = item['title'] ?? '';
-                final progress = int.tryParse(item['progress'] ?? '0') ?? 0;
+                var title = item['title'] ?? '';
+                var progress = int.tryParse(item['progress'] ?? '0') ?? 0;
                 return SquareCard(
                   title: title,
                   progress: progress,
@@ -73,11 +75,25 @@ class _ProgressPageState extends State<ProgressPage> {
                   alignRight: index.isEven,
                 );
               },
-            );
+            ) :Container(child: Center(child: Text("No Progress Uploaded .....",style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),)));
           }
         },
       ),
     );
+  }
+
+  Future<List<Map<String, dynamic>>> fetchData() async {
+    print("*GID = ${gid}");
+    final response = await http.get(
+        Uri.parse('https://project-pilot.000webhostapp.com/API/progress_name_data.php?fid=${gid}')
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print(data);
+      return List<Map<String, dynamic>>.from(data);
+    } else {
+      throw Exception('Failed to load data');
+    }
   }
 }
 
@@ -161,52 +177,3 @@ class SquareCard extends StatelessWidget {
     );
   }
 }
-
-// class SquareCard extends StatelessWidget {
-//   final String title;
-//   final int progress;
-//
-//   SquareCard({
-//     required this.title,
-//     required this.progress,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       margin: EdgeInsets.all(10),
-//       padding: EdgeInsets.all(20),
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(10),
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.stretch,
-//         children: [
-//           Text(
-//             title,
-//             style: TextStyle(
-//               fontSize: 18,
-//               fontWeight: FontWeight.bold,
-//             ),
-//           ),
-//           SizedBox(height: 10),
-//           LinearProgressIndicator(
-//             value: progress / 100,
-//             backgroundColor: Colors.grey[300],
-//             valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-//           ),
-//           SizedBox(height: 10),
-//           Text(
-//             '$progress%',
-//             textAlign: TextAlign.right,
-//             style: TextStyle(
-//               fontSize: 16,
-//               fontWeight: FontWeight.bold,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

@@ -38,6 +38,7 @@ class _ChatPageState extends State<ChatPage> {
     });
 
     // Send the message to the backend and receive the response
+    // List<String> responses = await _getResponseFromBackend(message);
     List<String> responses = await _getResponseFromBackend(message);
     setState(() {
       for (String response in responses) {
@@ -55,11 +56,16 @@ class _ChatPageState extends State<ChatPage> {
       // Parse the JSON response and extract the answers
       List<dynamic> data = json.decode(response.body);
       List<String> botResponses = data.map<String>((item) => item['answer'] as String).toList();
+      var l=botResponses.length;
+      if(l<1){
+        botResponses=['No Any Question Found'];
+      }
       return botResponses;
     } else {
       // Handle error response
       throw Exception('Failed to get response from backend');
     }
+
   }
 
 

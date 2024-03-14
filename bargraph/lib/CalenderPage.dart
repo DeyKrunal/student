@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -23,6 +24,7 @@ class _AddScheduleState extends State<AddSchedule> {
   late List<Map<String,dynamic>> jsondata;
   TextEditingController _eventController = TextEditingController();
   var fid,gid;
+  late String dateup = "";
 
   Future<void> _readData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -95,7 +97,9 @@ class _AddScheduleState extends State<AddSchedule> {
                       selectedDay = selectDay;
                       focusedDay = focusDay;
                       String formattedDate = DateFormat('yyyy-MM-dd').format(focusDay);
+                      dateup = formattedDate;
                       print("Date = ${formattedDate}");
+                      print("Date2 = ${dateup}");
 
                     });
                   },
@@ -106,9 +110,52 @@ class _AddScheduleState extends State<AddSchedule> {
                 ),
               ),
               const SizedBox(height: 10),
-              Expanded(
-                  child: Container(
-                    height: 300,
+              Divider(),
+              FutureBuilder(
+                future: fetchData1(),
+                builder: (BuildContext context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text("Something Went Wrong"));
+                  } else {
+                    Event event = Event.fromJson(snapshot.data!);
+                    return event.date != "No Data Found"
+                      ? Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: ListTile(
+                          tileColor: Colors.grey[300],
+                          leading: Icon(Icons.event, color: Colors.blue),
+                          title: Text(
+                            event.title,
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Date: ${event.date}',
+                                style: TextStyle(color: Colors.black87),
+                              ),
+                              Text(
+                                'Time: ${event.startTime} - ${event.endTime}',
+                                style: TextStyle(color: Colors.black87),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ) : Container(child:Center(child: Text("No Schedule"),));
+                  }
+                },
+              ),
+              Divider(),
+              Flexible(
                     child: SingleChildScrollView(
                       child: FutureBuilder(
                         future: fetchData(),
@@ -119,34 +166,28 @@ class _AddScheduleState extends State<AddSchedule> {
                               children: jsonData!.map((data) {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                                  child: Card(
-                                    elevation: 3,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+                                    tileColor: Colors.grey[300],
+                                    leading: Icon(Icons.event, color: Colors.blue),
+                                    title: Text(
+                                      data['title'],
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
                                     ),
-                                    child: ListTile(
-                                      contentPadding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                                      tileColor: Colors.grey[300],
-                                      leading: Icon(Icons.event, color: Colors.blue),
-                                      title: Text(
-                                        data['title'],
-                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-                                      ),
-                                      subtitle: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(height: 5.0),
-                                          Text(
-                                            'Date: ${data['date']}',
-                                            style: TextStyle(color: Colors.black87),
-                                          ),
-                                          SizedBox(height: 5.0),
-                                          Text(
-                                            'Time: ${data['start']} - ${data['end']}',
-                                            style: TextStyle(color: Colors.black87),
-                                          ),
-                                        ],
-                                      ),
+                                    subtitle: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(height: 5.0),
+                                        Text(
+                                          'Date: ${data['date']}',
+                                          style: TextStyle(color: Colors.black87),
+                                        ),
+                                        SizedBox(height: 5.0),
+                                        Text(
+                                          'Time: ${data['start']} - ${data['end']}',
+                                          style: TextStyle(color: Colors.black87),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 );
@@ -160,7 +201,6 @@ class _AddScheduleState extends State<AddSchedule> {
                       ),
                     ),
                   )
-              )
             ],
           ),
         ),
@@ -187,6 +227,36 @@ class _AddScheduleState extends State<AddSchedule> {
         body: {"fid": "${fid}"});
     List<dynamic> jsonData = jsonDecode(response.body);
     return jsonData;
+  }
+
+  Future<Map<String,dynamic>> fetchData1() async {
+
+    if(dateup == ""){
+      final response = await http.post(
+          Uri.parse(
+              'https://project-pilot.000webhostapp.com/API/view_schedule_today.php'),
+          body: {
+            "fid": "${fid}",
+          });
+      print("FetchData1");
+      print(response.body);
+      return jsonDecode(response.body);
+    }
+    else{
+      final response = await http.post(
+          Uri.parse(
+              'https://project-pilot.000webhostapp.com/API/view_schedule_today.php'),
+          body: {
+            "fid": "${fid}",
+            "sub_weekly_date": "${dateup}"
+          });
+      print("FetchData1");
+      print(response.body);
+      return jsonDecode(response.body);
+    }
+    // Simulated JSON data
+
+
   }
 
   Future<void> fetchScheduleData() async {

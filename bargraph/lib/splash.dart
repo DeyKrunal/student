@@ -1,11 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 import 'package:bargraph/main1.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'HomePage.dart';
+import 'package:http/http.dart' as http;
 import 'Login.dart';
 import 'form_group.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rive/rive.dart';
 
 // void main() {
@@ -186,6 +188,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
   late RiveAnimationController _btnAnimationController;
 
   bool isShowSignInDialog = false;
+  bool isButtonEnabled = true;
 
   @override
   void initState() {
@@ -194,6 +197,30 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
       autoplay: false,
     );
     super.initState();
+    fetchData();
+  }
+
+  Map<String, dynamic> apiResponse = {};
+
+  void fetchData() async {
+    var url = Uri.parse('https://project-pilot.000webhostapp.com/API/status.php');
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+
+      apiResponse = json.decode(response.body);
+      print(apiResponse);
+      print("Response = ${response.body}");
+      // Check the status here and update the button state
+      if (apiResponse['status'] == '1') {
+        setState(() {
+          isButtonEnabled = false;
+        });
+      }
+    } else {
+      // Handle API errors
+      print('Failed to fetch data: ${response.statusCode}');
+    }
   }
   @override
   Widget build(BuildContext context) {
@@ -264,13 +291,24 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                         width: double.infinity,
                         child: Padding(padding: EdgeInsets.all(25.0),
                           child: FloatingActionButton(
-                            onPressed: (){
+                            onPressed: isButtonEnabled ? () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) =>  group_form()),
                               );
-                            }, child: Text("Fill Group details",style: TextStyle(fontSize: 20,color: Colors.black)),
-                            backgroundColor: Colors.white,
+                            } : () {
+                              Fluttertoast.showToast(
+                                msg: "Sorry The Registration is being closed",
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 16.0,
+                              );
+                            },
+                            child: Text("Fill Group details",style: TextStyle(fontSize: 20,color: Colors.black)),
+                            backgroundColor: isButtonEnabled ? Colors.white : Colors.grey[400],
                           ),
                         ),
                       ),
